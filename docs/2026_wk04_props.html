@@ -19,6 +19,8 @@ select{font-size:16px;padding:10px 12px;border-radius:8px;border:1px solid #ccc;
 .stats{margin:12px 0}.stats label{display:inline-block;margin:0 8px 8px 0;padding:6px 12px;border-radius:999px;border:1px solid #ccc;background:#fff;cursor:pointer;font-size:13px;font-weight:600}
 .stats input{display:none}.stats label:has(input:checked){background:#1f3d99;color:#fff;border-color:#1f3d99}
 .pill{display:inline-block;border-radius:10px;padding:1px 8px;font-size:12px;background:#eee;color:#555} .game{color:#777;font-size:13px}
+.ladrow{display:flex;align-items:center;gap:8px;margin-top:4px}.lad{display:inline-flex;align-items:flex-end;gap:2px;height:26px}.lad i{display:block;width:7px;border-radius:2px 2px 0 0;background:#b9c9e6}.lad i.b{background:#2b6fd6}
+.ladtab{margin:0 0 12px}.ladtab h4{margin:0 0 6px;font-size:13px;color:#333}.ladtab table{box-shadow:none}.ladtab td,.ladtab th{padding:5px 8px;font-size:13px}.ladtab .bar{min-width:90px}
 .filters{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;margin:4px 0 10px;font-size:13px}.filters select{width:auto;font-size:14px;padding:6px 8px;margin:0}.ctl{display:inline-flex;align-items:center;gap:6px}
 ul.gone{padding-left:18px}ul.gone li{margin:4px 0}
 .legal{margin:28px 0 0;padding:12px 14px;border-top:2px solid #ddd;font-size:13px;color:#444;line-height:1.45}.legal p{margin:6px 0}.legal a{color:#1f3d99;font-weight:600}
@@ -122,26 +124,32 @@ gsel.innerHTML = '<option value="all">all games</option>' + D.games.map(g => `<o
 function rungWord(r){ return r.stat === 'anytime_td' ? 'to score' : `o${r.x} ${SH[r.stat] || r.stat}`; }
 function priceWord(p){ return p == null ? '-' : (p > 0 ? '+' : '') + p; }
 function tierPill(r){ return r.tier ? `<span class='tier ${r.tier}'>${r.tier}</span>` : "<span class='tier X'>&nbsp;</span>"; }
+function ladderOf(pid, st, pf){ return D.rows.filter(r => r.pid === pid && r.stat === st && r.price >= pf && (r.imp == null || r.p - r.imp < EDGE_FLAG)).sort((a, b) => a.x - b.x); }
+function ladderMini(lad, x){ if (lad.length < 2) return '';
+  const bars = lad.map(q => `<i class='${q.x === x ? 'b' : ''}' style='height:${Math.round(q.p * 22) + 3}px' title='o${q.x} · ${Math.round(100*q.p)}% · ${priceWord(q.price)}'></i>`).join('');
+  return `<div class='ladrow'><span class='lad'>${bars}</span><span class='muted small'>${lad.length} rungs to o${lad[lad.length - 1].x}</span></div>`; }
+function ladderTable(lad, st){ if (!lad.length) return '';
+  return `<div class='ladtab'><h4>The ladder &middot; ${SH[st] || st}</h4><table><tr><th>rung</th><th>slate</th><th>our number</th><th>price</th>${D.closed ? '<th>result</th>' : ''}</tr>`
+    + lad.map(q => `<tr><td><b>${rungWord(q)}</b>${q.main ? " <span class='pill'>line</span>" : ''}</td><td>${tierPill(q)}</td><td>${bar(q.p, q.imp)}</td><td>${priceWord(q.price)}</td>${D.closed ? '<td>' + res(q.res) + '</td>' : ''}</tr>`).join('') + '</table></div>'; }
 function draw(){
   const floor = parseInt(fsel.value) / 100, pf = parseInt(psel.value), g = gsel.value;
   let rows = D.rows.filter(r => r.stat === stat && r.p >= floor && r.price >= pf && (g === 'all' || r.g === g) && (r.imp == null || r.p - r.imp < EDGE_FLAG));   // a rung where we run 5+ ahead of the price is not shown: the price has been the better guide there
   rows.sort((a, b) => b.p - a.p || a.name.localeCompare(b.name));
-  let ladders = {};
   if (best.checked) { const seen = {}; const kept = [];
-    rows.forEach(r => { const k = r.pid; if (!seen[k]) { seen[k] = true; kept.push(r); ladders[k] = []; } else ladders[k].push(r); }); rows = kept; }
+    rows.forEach(r => { if (!seen[r.pid]) { seen[r.pid] = true; kept.push(r); } }); rows = kept; }
   cnt.textContent = rows.length + (best.checked ? ' players' : ' rungs');
   let tbl = `<table><tr><th>#</th><th>slate</th><th>player</th><th>rung</th><th>price</th><th>probability (red mark = price)</th><th>game</th>${D.closed ? '<th>result</th>' : ''}</tr>`; let cards = '';
-  rows.forEach((r, i) => { const lad = (ladders[r.pid] || []).map(q => `<span class='pill'>o${q.x} ${Math.round(100*q.p)}% ${priceWord(q.price)}</span>`).join(' ');
+  rows.forEach((r, i) => { const lad = best.checked ? ladderMini(ladderOf(r.pid, r.stat, pf), r.x) : '';
     const main = r.main ? " <span class='pill'>line</span>" : '';
     tbl += `<tr class='leg' data-p='${r.pid}' data-s='${r.stat}' data-x='${r.x}' data-side='Over' data-team='${r.team}' data-tier='${r.tier || ''}' data-g='${r.g}'><td>${i + 1}</td><td>${tierPill(r)}</td><td><b>${r.name}</b> <span class='muted'>${r.team}</span></td>`
-         + `<td><b>${rungWord(r)}</b>${main}${lad ? `<div class='muted' style='margin-top:3px'>${lad}</div>` : ''}</td><td>${priceWord(r.price)}</td><td>${bar(r.p, r.imp)}</td><td class='muted'>${r.gl}</td>${D.closed ? '<td>' + res(r.res) + '</td>' : ''}</tr>`;
+         + `<td><b>${rungWord(r)}</b>${main}${lad}</td><td>${priceWord(r.price)}</td><td>${bar(r.p, r.imp)}</td><td class='muted'>${r.gl}</td>${D.closed ? '<td>' + res(r.res) + '</td>' : ''}</tr>`;
     cards += `<div class='card flip' data-p='${r.pid}' data-s='${r.stat}' data-x='${r.x}' data-side='Over' data-team='${r.team}' data-tier='${r.tier || ''}' data-g='${r.g}' data-name='${r.name}'><div class='inner'><div class='face'><div class='l1'><span>${tierPill(r)} &nbsp;<b>${r.name}</b> <span class='muted'>${r.team}</span></span><span>${priceWord(r.price)} ${res(r.res)}</span></div>`
-          + `<div class='l2'><span><b>${rungWord(r)}</b>${main}</span><span>${r.gl}</span></div>${bar(r.p, r.imp)}${lad ? `<div class='muted' style='margin-top:6px'>${lad}</div>` : ''}</div><div class='face back' style='display:none'></div></div></div>`; });
+          + `<div class='l2'><span><b>${rungWord(r)}</b>${main}</span><span>${r.gl}</span></div>${bar(r.p, r.imp)}${lad}</div><div class='face back' style='display:none'></div></div></div>`; });
   out.innerHTML = rows.length ? `<div class='desk wrap'>${tbl}</table></div><div class='mob'>${cards}</div>` : "<p class='muted'>nothing clears these filters</p>";
   out.querySelectorAll('tr.leg').forEach(tr => tr.addEventListener('click', () => { const nx = tr.nextElementSibling; if (nx && nx.classList.contains('detail')) { nx.remove(); return; }
-    const d = tr.dataset; const row = document.createElement('tr'); row.className = 'detail'; row.innerHTML = `<td colspan='8'>${hist(d.p, d.s, parseFloat(d.x), 'Over', d.team, SEASON, '', d.tier, d.g)}</td>`; tr.after(row); }));
+    const d = tr.dataset; const row = document.createElement('tr'); row.className = 'detail'; row.innerHTML = `<td colspan='8'>${ladderTable(ladderOf(d.p, d.s, parseInt(psel.value)), d.s)}${hist(d.p, d.s, parseFloat(d.x), 'Over', d.team, SEASON, '', d.tier, d.g)}</td>`; tr.after(row); }));
   out.querySelectorAll('.card.flip').forEach(c => c.addEventListener('click', () => { const d = c.dataset; const back = c.querySelector('.back');
     if (c.classList.contains('on')) { c.classList.remove('on'); setTimeout(() => { if (!c.classList.contains('on')) back.style.display = 'none'; }, 480); return; }
-    if (!back.innerHTML) back.innerHTML = hist(d.p, d.s, parseFloat(d.x), 'Over', d.team, SEASON, d.name, d.tier, d.g); back.style.display = ''; requestAnimationFrame(() => c.classList.add('on')); })); }
+    if (!back.innerHTML) back.innerHTML = ladderTable(ladderOf(d.p, d.s, parseInt(psel.value)), d.s) + hist(d.p, d.s, parseFloat(d.x), 'Over', d.team, SEASON, d.name, d.tier, d.g); back.style.display = ''; requestAnimationFrame(() => c.classList.add('on')); })); }
 draw();
-</script><p class='muted'>Alternate-line overs only (FanDuel's ladders; the posted line is the rung marked "line"). The slate column is the slate's call on the rung. Our number is honest across the whole range on four seasons of closes: when we say 30 it lands 30, when we say 70 it lands 70. Where our number runs well ahead of the price the price has been the better guide, so those rungs are not shown. Page written 2026-10-01 17:06.</p><div class='legal'><p><b>For entertainment only.</b> Nothing on this site is financial or betting advice. The numbers are a model's estimates, the record is what it is, and past results do not promise future ones. Bet only what you can afford to lose. You must be of legal betting age where you are.</p><p><b>Have a problem with gambling?</b> Free, confidential help is available 24/7. Call or text the National Problem Gambling Helpline at <a href='tel:18006973738'>1-800-MY-RESET (1-800-697-3738)</a> or chat at <a href='https://www.1800myreset.org' rel='noopener'>1800myreset.org</a>.</p></div></body></html>
+</script><p class='muted'>Alternate-line overs only (FanDuel's ladders; the posted line is the rung marked "line"). The slate column is the slate's call on the rung. Our number is honest across the whole range on four seasons of closes: when we say 30 it lands 30, when we say 70 it lands 70. Where our number runs well ahead of the price the price has been the better guide, so those rungs are not shown. Page written 2026-10-01 17:11.</p><div class='legal'><p><b>For entertainment only.</b> Nothing on this site is financial or betting advice. The numbers are a model's estimates, the record is what it is, and past results do not promise future ones. Bet only what you can afford to lose. You must be of legal betting age where you are.</p><p><b>Have a problem with gambling?</b> Free, confidential help is available 24/7. Call or text the National Problem Gambling Helpline at <a href='tel:18006973738'>1-800-MY-RESET (1-800-697-3738)</a> or chat at <a href='https://www.1800myreset.org' rel='noopener'>1800myreset.org</a>.</p></div></body></html>
