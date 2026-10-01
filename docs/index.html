@@ -1,17 +1,25 @@
 <!doctype html><html><head><meta charset='utf-8'><meta name='viewport' content='width=device-width, initial-scale=1'><title>Bobby's Best</title><style>
-*{box-sizing:border-box}body{font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;max-width:1080px;margin:0 auto;padding:18px 14px 60px;color:#1a1a1a;background:#f7f7f8}
-h1{font-size:24px;margin:0}h2{font-size:17px;margin:26px 0 8px;color:#333;border-bottom:1px solid #ddd;padding-bottom:4px}
-.sub{color:#666;font-size:14px;margin:4px 0 14px}.nav a{margin-right:14px;font-size:14px}.muted{color:#777}.small{font-size:12px}
-table{border-collapse:collapse;width:100%;font-size:14px;background:#fff}th,td{padding:6px 8px;border-bottom:1px solid #eee;text-align:left;vertical-align:middle;white-space:nowrap}
-th{font-size:12px;color:#666;font-weight:600;background:#fafafa}tr.removed td{color:#999}tr.removed td.leg{text-decoration:line-through}
-.tier{display:inline-block;width:24px;text-align:center;border-radius:6px;color:#fff;font-weight:700;font-size:12px;padding:2px 0}
-.tier.A{background:#1a7f37}.tier.B{background:#2f6fd1}.tier.C{background:#8a6d1f}.tier.R{background:#7a3ea1}.tier.X{background:#bbb}
-.bar{position:relative;height:14px;width:150px;background:#e9e9ec;border-radius:7px;display:inline-block;vertical-align:middle}
-.bar i{position:absolute;left:0;top:0;height:100%;background:#4c8dff;border-radius:7px}.bar b{position:absolute;top:-2px;width:2px;height:18px;background:#d33}
-.p{font-weight:600;min-width:42px;display:inline-block}.hit{color:#1a7f37;font-weight:700}.miss{color:#c0392b;font-weight:700}.push,.void{color:#888;font-weight:600}
-.pill{display:inline-block;border-radius:10px;padding:1px 8px;font-size:12px;background:#eee;color:#555}
-select{font-size:15px;padding:6px 8px;margin:0 10px 8px 0;max-width:100%}.filters{margin:10px 0 6px}
-.card{background:#fff;border:1px solid #e5e5e5;border-radius:8px;padding:8px 10px;margin:6px 0}.card .l1{display:flex;justify-content:space-between;align-items:center}.card .l2{color:#666;font-size:13px;margin-top:2px}
-.desk{display:block}.mob{display:none}@media(max-width:700px){.desk{display:none}.mob{display:block}body{padding:12px 8px 60px}h1{font-size:20px}}
-.note{background:#fff8e6;border:1px solid #f0d99a;border-radius:6px;padding:8px 10px;font-size:13px;margin:8px 0}
-</style></head><body><h1>Bobby's Best</h1><div class='sub'>updated Thursday, October 01, 2026 12:08 AM</div><p><a href='board.html'>This week's board</a> &middot; <a href='props.html'>This week's prop picker</a></p><h2>By week</h2><ul><li>week 1: <a href='2026_wk01_board.html'>board</a> · <a href='2026_wk01_props.html'>props</a></li><li>week 2: <a href='2026_wk02_board.html'>board</a> · <a href='2026_wk02_props.html'>props</a></li><li>week 3: <a href='2026_wk03_board.html'>board</a> · <a href='2026_wk03_props.html'>props</a></li><li>week 4: <a href='2026_wk04_board.html'>board</a> · <a href='2026_wk04_props.html'>props</a> (current)</li></ul></body></html>
+*{box-sizing:border-box}body{font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;max-width:1080px;margin:28px auto;padding:0 18px 40px;color:#1a1a1a;background:#f7f7f8}
+h1{font-size:26px;margin:0} .sub{color:#666;font-size:14px;margin:4px 0 12px} h2{font-size:17px;margin:26px 0 8px;color:#333} h3{font-size:15px;margin:14px 0 6px;color:#333}
+.nav{margin:0 0 14px}.nav a{margin-right:14px;font-size:14px}
+.pills span{display:inline-block;padding:4px 10px;border-radius:999px;font-size:13px;font-weight:600;margin-right:6px;color:#fff}
+.A{background:#1f8f4e}.B{background:#2b6fd6}.C{background:#8a6d1f}.R{background:#7d3c98}.X{background:#999}
+table{width:100%;border-collapse:collapse;background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 1px 2px rgba(0,0,0,.05)}
+th{font-size:12px;text-align:left;color:#666;padding:8px 10px;background:#f0f1f3;border-bottom:1px solid #e3e3e3}
+td{padding:8px 10px;border-bottom:1px solid #eee;font-size:14px;vertical-align:middle} tr:last-child td{border-bottom:none}
+.tier{display:inline-block;width:22px;text-align:center;border-radius:6px;color:#fff;font-weight:700;font-size:12px;padding:2px 0}
+.bar{position:relative;height:9px;background:#e9e9e9;border-radius:5px;min-width:120px}.fill{height:100%;border-radius:5px;background:linear-gradient(90deg,#4a8df5,#1f8f4e)}
+.mk{position:absolute;top:-3px;width:2px;height:15px;background:#c0392b} .pct{font-size:12px;color:#555;white-space:nowrap}
+.hit{background:#e6f6ec;color:#1f8f4e;font-weight:700;padding:2px 8px;border-radius:6px}.miss{background:#fdecea;color:#c0392b;font-weight:700;padding:2px 8px;border-radius:6px}
+.push,.void{color:#888;font-weight:600}.open{color:#2b6fd6}.off{color:#999;text-decoration:line-through}
+.muted{color:#888;font-size:12px} .wrap{overflow-x:auto;-webkit-overflow-scrolling:touch} .mob{display:none}
+.card{background:#fff;border:1px solid #e6e6e6;border-radius:10px;padding:10px 12px;margin:8px 0;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+.card .l1{display:flex;justify-content:space-between;align-items:center;font-size:15px} .card .l2{display:flex;justify-content:space-between;margin:3px 0 6px;font-size:13px;color:#555}
+select{font-size:16px;padding:10px 12px;border-radius:8px;border:1px solid #ccc;width:100%;max-width:480px;background:#fff;margin:0 8px 8px 0}
+.stats{margin:12px 0}.stats label{display:inline-block;margin:0 8px 8px 0;padding:6px 12px;border-radius:999px;border:1px solid #ccc;background:#fff;cursor:pointer;font-size:13px;font-weight:600}
+.stats input{display:none}.stats label:has(input:checked){background:#1f3d99;color:#fff;border-color:#1f3d99}
+.pill{display:inline-block;border-radius:10px;padding:1px 8px;font-size:12px;background:#eee;color:#555} .game{color:#777;font-size:13px}
+ul.gone{padding-left:18px}ul.gone li{margin:4px 0}
+@media (max-width:600px){body{margin:14px auto;padding:0 10px 30px}h1{font-size:20px}.desk{display:none}.mob{display:block}.bar{min-width:0}}
+@media print{body{background:#fff;margin:0;max-width:none}}
+</style></head><body><h1>Bobby's Best</h1><div class='sub'>2026 season &middot; updated 12:22 AM on Thursday, October 1, 2026</div><p><a href='board.html'>This week's board</a> &middot; <a href='props.html'>This week's prop picker</a></p><h2>By week</h2><ul><li>week 1: <a href='2026_wk01_board.html'>board</a> · <a href='2026_wk01_props.html'>props</a></li><li>week 2: <a href='2026_wk02_board.html'>board</a> · <a href='2026_wk02_props.html'>props</a></li><li>week 3: <a href='2026_wk03_board.html'>board</a> · <a href='2026_wk03_props.html'>props</a></li><li>week 4: <a href='2026_wk04_board.html'>board</a> · <a href='2026_wk04_props.html'>props</a> (current)</li></ul></body></html>
