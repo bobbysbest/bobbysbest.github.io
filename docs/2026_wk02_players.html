@@ -132,7 +132,7 @@ function show(){ const v = psel.value; const chk = statsBox.querySelector('input
   const act = st.actual == null ? '' : ` <span class='pill'>Actual result: ${st.actual}</span>`;
   const main = st.rungs.find(r => r.main && (r.side === 'Over' || r.side === 'Yes')) || st.rungs[0];
   cur = {pid, stat, team: pl.team, x: main.x, side: main.side};
-  let h = `<h2>${pl.name} <span class='muted'>${pl.team}</span> &middot; ${st.label}${act}</h2><div class='game'>${game ? game.label : g}${game && game.look ? ` &middot; <span class='muted'>lines as of ${game.look}, before kickoff</span>` : ''}</div>`;
+  let h = `<h2>${pl.name} <span class='muted'>${pl.team}</span> &middot; ${st.label}${act}</h2><div class='game'>${game ? game.label : g}${game && game.look ? ` &middot; <span class='muted'>lines as of ${game.look}${game.played || game.live ? ', before kickoff' : ''}</span>` : ''}</div>`;
   h += `<div class='card' id='hbox' style='margin:10px 0'>${hist(pid, stat, main.x, main.side, pl.team, SEASON, '', main.tier, g)}<div class='muted' style='margin-top:4px'>Tap a rung below to see the last ten against that line</div></div>`;
   const graded = st.rungs.some(r => r.res);
   let tbl = `<table><tr><th>Rung</th><th>Slate</th><th>Price</th><th>Probability (red mark = price)</th>${graded ? '<th>Result</th>' : ''}</tr>`; let cards = '';
