@@ -116,8 +116,7 @@ const D = JSON.parse(document.getElementById('d').textContent);
 const SH = {receptions:'rec', receiving_yards:'rec yds', rushing_yards:'rush yds', passing_yards:'pass yds', passing_tds:'pass TD', anytime_td:'anytime TD', carries:'carries', pass_attempts:'attempts', completions:'completions'};
 function bar(p, imp){ const mk = imp == null ? '' : `<div class='mk' style='left:${Math.round(imp*100)}%'></div>`;
   return `<div class='bar'><div class='fill' style='width:${Math.round(p*100)}%'></div>${mk}</div><div class='pct'>${(p*100).toFixed(1)}% model${imp == null ? '' : ' &middot; ' + (imp*100).toFixed(1) + '% price'}</div>`; }
-function res(r, a, st){ if (!r) return ''; const act = (a != null && st !== 'anytime_td') ? ` <span class='muted'>Actual ${a}</span>` : '';
-  return `<span class='${r}'>${r.toUpperCase()}</span>${act}`; }
+function res(r){ return r ? `<span class='${r}'>${r.toUpperCase()}</span>` : ''; }
 const statsBox = document.getElementById('stats'), gsel = document.getElementById('g'), fsel = document.getElementById('floor'), psel = document.getElementById('pfloor'),
       out = document.getElementById('out'), cnt = document.getElementById('cnt');
 let stat = D.stats.length ? D.stats[0][0] : null;
@@ -127,14 +126,16 @@ gsel.innerHTML = '<option value="all">All games</option>' + D.games.map(g => `<o
 [gsel, fsel, psel].forEach(el => el.addEventListener('change', draw));
 function rungWord(r){ return r.stat === 'anytime_td' ? 'To score' : `o${r.x} ${SH[r.stat] || r.stat}`; }
 function priceWord(p){ return p == null ? '-' : (p > 0 ? '+' : '') + p; }
+function actualLine(r){ return (r.actual != null && r.stat !== 'anytime_td') ? `<div class='muted'>Actual result: ${r.actual}</div>` : ''; }
 function tierPill(r){ return r.tier ? `<span class='tier ${r.tier}'>${r.tier}</span>` : "<span class='tier X'>&nbsp;</span>"; }
 function ladderOf(pid, st, pf){ return D.rows.filter(r => r.pid === pid && r.stat === st && r.price >= pf && (r.imp == null || r.p - r.imp < EDGE_FLAG)).sort((a, b) => a.x - b.x); }
 function ladderMini(lad, x){ if (lad.length < 2) return '';
   const bars = lad.map(q => `<i class='${q.x === x ? 'b' : ''}' style='height:${Math.round(q.p * 22) + 3}px' title='o${q.x} · ${Math.round(100*q.p)}% · ${priceWord(q.price)}'></i>`).join('');
   return `<div class='ladrow'><span class='lad'>${bars}</span><span class='muted small'>${lad.length} rungs to o${lad[lad.length - 1].x}</span></div>`; }
 function ladderTable(lad, st){ if (!lad.length) return '';
-  return `<div class='ladtab'><h4>The ladder &middot; ${SH[st] || st}</h4><table><tr><th>Rung</th><th>Slate</th><th>Our number</th><th>Price</th>${D.closed ? '<th>Result</th>' : ''}</tr>`
-    + lad.map(q => `<tr><td><b>${rungWord(q)}</b>${q.main ? " <span class='pill'>Line</span>" : ''}</td><td>${tierPill(q)}</td><td>${bar(q.p, q.imp)}</td><td>${priceWord(q.price)}</td>${D.closed ? '<td>' + res(q.res, q.actual, q.stat) + '</td>' : ''}</tr>`).join('') + `</table><p class='muted'>${EDGE_NOTE}</p></div>`; }
+  const act = lad[0].actual != null && st !== 'anytime_td' ? ` <span class='pill'>Actual result: ${lad[0].actual}</span>` : '';
+  return `<div class='ladtab'><h4>The ladder &middot; ${SH[st] || st}${act}</h4><table><tr><th>Rung</th><th>Slate</th><th>Our number</th><th>Price</th>${D.closed ? '<th>Result</th>' : ''}</tr>`
+    + lad.map(q => `<tr><td><b>${rungWord(q)}</b>${q.main ? " <span class='pill'>Line</span>" : ''}</td><td>${tierPill(q)}</td><td>${bar(q.p, q.imp)}</td><td>${priceWord(q.price)}</td>${D.closed ? '<td>' + res(q.res) + '</td>' : ''}</tr>`).join('') + `</table><p class='muted'>${EDGE_NOTE}</p></div>`; }
 function draw(){
   const floor = parseInt(fsel.value) / 100, pf = parseInt(psel.value), g = gsel.value;
   let rows = D.rows.filter(r => r.stat === stat && r.p >= floor && r.price >= pf && (g === 'all' || r.g === g) && (r.imp == null || r.p - r.imp < EDGE_FLAG));   // a rung where we run 5+ ahead of the price is not shown: the price has been the better guide there
@@ -146,9 +147,9 @@ function draw(){
   rows.forEach((r, i) => { const lad = ladderMini(ladderOf(r.pid, r.stat, pf), r.x);
     const main = r.main ? " <span class='pill'>Line</span>" : '';
     tbl += `<tr class='leg' data-p='${r.pid}' data-s='${r.stat}' data-x='${r.x}' data-side='Over' data-team='${r.team}' data-tier='${r.tier || ''}' data-g='${r.g}'><td>${i + 1}</td><td>${tierPill(r)}</td><td><b>${r.name}</b> <span class='muted'>${r.team}</span></td>`
-         + `<td><b>${rungWord(r)}</b>${main}${lad}</td><td>${priceWord(r.price)}</td><td>${bar(r.p, r.imp)}</td><td class='muted'>${r.gl}</td>${D.closed ? '<td>' + res(r.res, r.actual, r.stat) + '</td>' : ''}</tr>`;
-    cards += `<div class='card flip' data-p='${r.pid}' data-s='${r.stat}' data-x='${r.x}' data-side='Over' data-team='${r.team}' data-tier='${r.tier || ''}' data-g='${r.g}' data-name='${r.name}'><div class='inner'><div class='face'><div class='l1'><span>${tierPill(r)} &nbsp;<b>${r.name}</b> <span class='muted'>${r.team}</span></span><span>${priceWord(r.price)} ${res(r.res, r.actual, r.stat)}</span></div>`
-          + `<div class='l2'><span><b>${rungWord(r)}</b>${main}</span><span>${r.gl}</span></div>${bar(r.p, r.imp)}${lad}</div><div class='face back' style='display:none'></div></div></div>`; });
+         + `<td><b>${rungWord(r)}</b>${main}${actualLine(r)}${lad}</td><td>${priceWord(r.price)}</td><td>${bar(r.p, r.imp)}</td><td class='muted'>${r.gl}</td>${D.closed ? '<td>' + res(r.res) + '</td>' : ''}</tr>`;
+    cards += `<div class='card flip' data-p='${r.pid}' data-s='${r.stat}' data-x='${r.x}' data-side='Over' data-team='${r.team}' data-tier='${r.tier || ''}' data-g='${r.g}' data-name='${r.name}'><div class='inner'><div class='face'><div class='l1'><span>${tierPill(r)} &nbsp;<b>${r.name}</b> <span class='muted'>${r.team}</span></span><span>${priceWord(r.price)} ${res(r.res)}</span></div>`
+          + `<div class='l2'><span><b>${rungWord(r)}</b>${main}${actualLine(r)}</span><span>${r.gl}</span></div>${bar(r.p, r.imp)}${lad}</div><div class='face back' style='display:none'></div></div></div>`; });
   out.innerHTML = rows.length ? `<div class='desk wrap'>${tbl}</table></div><div class='mob'>${cards}</div><p class='muted'>One row per player: his most likely rung at your price; tap it for his ladder and the detail. ${EDGE_NOTE}</p>` : "<p class='muted'>Nothing clears these filters</p>";
   out.querySelectorAll('tr.leg').forEach(tr => tr.addEventListener('click', () => { const nx = tr.nextElementSibling; if (nx && nx.classList.contains('detail')) { nx.remove(); return; }
     const d = tr.dataset; const row = document.createElement('tr'); row.className = 'detail'; row.innerHTML = `<td colspan='8'>${ladderTable(ladderOf(d.p, d.s, parseInt(psel.value)), d.s)}${hist(d.p, d.s, parseFloat(d.x), 'Over', d.team, SEASON, '', d.tier, d.g)}</td>`; tr.after(row); }));

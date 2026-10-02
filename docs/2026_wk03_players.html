@@ -125,12 +125,11 @@ function pick(){ const v = psel.value; if(!v){ statsBox.innerHTML = ''; out.inne
   statsBox.querySelectorAll('input').forEach(r => r.addEventListener('change', show)); show(); }
 function bar(p, imp){ const mk = imp == null ? '' : `<div class='mk' style='left:${Math.round(imp*100)}%'></div>`;
   return `<div class='bar'><div class='fill' style='width:${Math.round(p*100)}%'></div>${mk}</div><div class='pct'>${(p*100).toFixed(1)}% model${imp == null ? '' : ' &middot; ' + (imp*100).toFixed(1) + '% price'}</div>`; }
-function res(r, a, st){ if (!r) return ''; const act = (a != null && st !== 'anytime_td') ? ` <span class='muted'>Actual ${a}</span>` : '';
-  return `<span class='${r}'>${r.toUpperCase()}</span>${act}`; }
+function res(r){ return r ? `<span class='${r}'>${r.toUpperCase()}</span>` : ''; }
 let cur = null;
 function show(){ const v = psel.value; const chk = statsBox.querySelector('input:checked'); if(!v || !chk){ out.innerHTML = ''; return; }
   const [g, pid] = v.split('|'); const pl = D.data[g][pid]; const stat = chk.value; const st = pl.stats[stat]; const game = D.games.find(x => x.id === g);
-  const act = st.actual == null ? '' : ` <span class='pill'>Actual ${st.actual}</span>`;
+  const act = st.actual == null ? '' : ` <span class='pill'>Actual result: ${st.actual}</span>`;
   const main = st.rungs.find(r => r.main && (r.side === 'Over' || r.side === 'Yes')) || st.rungs[0];
   cur = {pid, stat, team: pl.team, x: main.x, side: main.side};
   let h = `<h2>${pl.name} <span class='muted'>${pl.team}</span> &middot; ${st.label}${act}</h2><div class='game'>${game ? game.label : g}</div>`;
@@ -140,8 +139,8 @@ function show(){ const v = psel.value; const chk = statsBox.querySelector('input
     const rung = st.label === 'Anytime TD' ? 'To score' : `${over ? 'Over' : 'Under'} ${r.x}` + (r.main ? ' <span class="pill">Line</span>' : '');
     const price = r.price == null ? '<span class="muted">Not posted</span>' : (r.price > 0 ? '+' : '') + r.price;
     const tb = r.tier ? `<span class='tier ${r.tier}'>${r.tier}</span>${r.note ? ` <span class='muted'>${r.note}</span>` : ''}` : (r.why ? `<span class='muted'>${r.why}</span>` : '');
-    tbl += `<tr class='rung' data-k='${k}'><td><b>${rung}</b></td><td>${tb}</td><td>${price}</td><td>${bar(r.p, r.imp)}</td>${D.closed ? '<td>' + res(r.res, st.actual, stat) + '</td>' : ''}</tr>`;
-    cards += `<div class='card rung' data-k='${k}'><div class='l1'><span><b>${rung}</b></span><span>${tb} ${res(r.res, st.actual, stat)}</span></div><div class='l2'><span>${price}</span></div>${bar(r.p, r.imp)}</div>`; });
+    tbl += `<tr class='rung' data-k='${k}'><td><b>${rung}</b></td><td>${tb}</td><td>${price}</td><td>${bar(r.p, r.imp)}</td>${D.closed ? '<td>' + res(r.res) + '</td>' : ''}</tr>`;
+    cards += `<div class='card rung' data-k='${k}'><div class='l1'><span><b>${rung}</b></span><span>${tb} ${res(r.res)}</span></div><div class='l2'><span>${price}</span></div>${bar(r.p, r.imp)}</div>`; });
   out.innerHTML = h + "<div class='desk wrap'>" + tbl + "</table></div><div class='mob'>" + cards + "</div><p class='muted'>" + EDGE_NOTE + "</p>";
   out.querySelectorAll('.rung').forEach(el => el.addEventListener('click', () => { const r = st.rungs[parseInt(el.dataset.k)];
     document.getElementById('hbox').innerHTML = hist(pid, stat, r.x, r.side, pl.team, SEASON, '', r.tier, g) + "<div class='muted' style='margin-top:4px'>Tap a rung below to see the last ten against that line</div>"; })); }
